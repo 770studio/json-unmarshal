@@ -75,6 +75,8 @@ class Unmarshal
                 }
             }
         }
+        
+        
     }
 
     /**
@@ -96,9 +98,7 @@ class Unmarshal
         string $lookupFieldName,
         ?string $type,
     ): void {
-        if (is_null($type) || empty($type)) {
-            throw new Exception('no type specified for array unmarshalling');
-        }
+
 
         $items = self::getValueFromData(
             $data,
@@ -107,10 +107,24 @@ class Unmarshal
         );
 
         $class->{$propertyName} = [];
+ 
+        if (!$items  ) {
+            return; //  allow empty array for $class->{$propertyName}
+        }
+        if (  !$type) { // no need for a specific type
+            foreach ($items as $item) {
+                $class->{$propertyName}[] = $item;
+
+            }
+            return;
+        }
+       
+        
         foreach ($items as $item) {
             try {
                 $object = new ReflectionClass($type);
             } catch (ReflectionException $exception) {
+            
                 throw $exception;
             }
 
